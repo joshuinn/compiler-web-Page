@@ -1508,6 +1508,10 @@ custom button light green
   border-radius: 18px;
   color: white;
   transition: 0.3s ease-in-out;
+  border: 3px solid var(--secondary);
+}
+.btn-light:hover{
+  border: 3px solid var(--secondary);
 }
 /* 
 ---------------------------------------------
