@@ -1496,7 +1496,19 @@ Services Style
 }
 
 
+/*
+custom button light green
 
+*/
+
+.btn-light{
+  background: var(--secondary);
+  font-size: 20px;
+  padding: 20px 30px;
+  border-radius: 18px;
+  color: white;
+  transition: 0.3s ease-in-out;
+}
 /* 
 ---------------------------------------------
 Free Quote
