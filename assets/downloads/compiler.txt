@@ -1,0 +1,169 @@
+#include <iostream>
+#include <string>
+#include <cctype>
+
+// Token types
+enum class TokenType {
+    INTEGER,
+    PLUS,
+    MINUS,
+    MULTIPLY,
+    DIVIDE,
+    LPAREN,
+    RPAREN,
+    END_OF_INPUT
+};
+
+// Token structure
+struct Token {
+    TokenType type;
+    std::string value;
+};
+
+// Lexer class
+class Lexer {
+public:
+    Lexer(const std::string& text) : text(text), pos(0) {}
+
+    void error() {
+        throw std::runtime_error("Invalid character");
+    }
+
+    void skipWhitespace() {
+        while (pos < text.size() && std::isspace(text[pos]))
+            ++pos;
+    }
+
+    Token getNextToken() {
+        while (pos < text.size()) {
+            if (std::isspace(text[pos])) {
+                skipWhitespace();
+                continue;
+            }
+
+            if (std::isdigit(text[pos])) {
+                return integer();
+            }
+
+            switch (text[pos]) {
+                case '+':
+                    ++pos;
+                    return { TokenType::PLUS, "+" };
+                case '-':
+                    ++pos;
+                    return { TokenType::MINUS, "-" };
+                case '*':
+                    ++pos;
+                    return { TokenType::MULTIPLY, "*" };
+                case '/':
+                    ++pos;
+                    return { TokenType::DIVIDE, "/" };
+                case '(':
+                    ++pos;
+                    return { TokenType::LPAREN, "(" };
+                case ')':
+                    ++pos;
+                    return { TokenType::RPAREN, ")" };
+                default:
+                    error();
+            }
+        }
+
+        return { TokenType::END_OF_INPUT, "" };
+    }
+
+    Token integer() {
+        std::string result;
+        while (pos < text.size() && std::isdigit(text[pos])) {
+            result += text[pos];
+            ++pos;
+        }
+        return { TokenType::INTEGER, result };
+    }
+
+private:
+    std::string text;
+    size_t pos;
+};
+
+// Parser class
+class Parser {
+public:
+    Parser(const std::string& text) : lexer(text), currentToken(lexer.getNextToken()) {}
+
+    void error() {
+        throw std::runtime_error("Invalid syntax");
+    }
+
+    void eat(TokenType tokenType) {
+        if (currentToken.type == tokenType) {
+            currentToken = lexer.getNextToken();
+        } else {
+            error();
+        }
+    }
+
+    int factor() {
+        auto token = currentToken;
+        eat(TokenType::INTEGER);
+        return std::stoi(token.value);
+    }
+
+    int term() {
+        auto result = factor();
+
+        while (currentToken.type == TokenType::MULTIPLY || currentToken.type == TokenType::DIVIDE) {
+            auto token = currentToken;
+            if (token.type == TokenType::MULTIPLY) {
+                eat(TokenType::MULTIPLY);
+                result *= factor();
+            } else if (token.type == TokenType::DIVIDE) {
+                eat(TokenType::DIVIDE);
+                result /= factor();
+            }
+        }
+
+        return result;
+    }
+
+    int expr() {
+        auto result = term();
+
+        while (currentToken.type == TokenType::PLUS || currentToken.type == TokenType::MINUS) {
+            auto token = currentToken;
+            if (token.type == TokenType::PLUS) {
+                eat(TokenType::PLUS);
+                result += term();
+            } else if (token.type == TokenType::MINUS) {
+                eat(TokenType::MINUS);
+                result -= term();
+            }
+        }
+
+        return result;
+    }
+
+    int parse() {
+        return expr();
+    }
+
+private:
+    Lexer lexer;
+    Token currentToken;
+};
+
+int main() {
+    std::string text;
+    std::cout << "Ingrese una expresión aritmética: ";
+    std::getline(std::cin, text);
+
+    Parser parser(text);
+    try {
+        int result = parser.parse();
+        std::cout << "Resultado: " << result << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    return 0;
+}

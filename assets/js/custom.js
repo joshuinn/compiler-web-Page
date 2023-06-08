@@ -85,11 +85,11 @@
               scrollTop: (target.offset().top) + 1
           }, 500, 'swing', function () {
               window.location.hash = target;
-              $(document).on("scroll", onScroll);
+              //$(document).on("scroll", onScroll);
           });
       });
   });
-/*
+
   function onScroll(event){
       var scrollPos = $(document).scrollTop();
       $('.nav a').each(function () {
@@ -104,7 +104,6 @@
           }
       });
   }
-*/
 
   // Acc
   $(document).on("click", ".naccs .menu div", function() {
